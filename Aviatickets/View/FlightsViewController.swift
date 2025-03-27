@@ -11,9 +11,36 @@ import UIKit
 
 class FlightsViewController: UIViewController {
     
-    var flights: [FlightOffer?]?
+    var data: DataClass?
     var priceData: [DatumNew?]?
     var returnIsActive = false
+    
+    var returnDate: String
+    var from: String
+    var to: String
+    var departureDate: String
+    var depatureCity: String
+    var arrivalCity: String
+    
+    var selectedItem: IndexPath?
+    var scrolledToSelectedItem = false
+    
+    private var selectTimer: Timer?
+    
+    init(from: String, to: String, departureDate: String, returnDate: String, depatureCity: String, arrivalCity: String) {
+        self.returnDate = returnDate
+        self.from = from
+        self.to = to
+        self.departureDate = departureDate
+        self.depatureCity = depatureCity
+        self.arrivalCity = arrivalCity
+        
+        super.init(nibName: nil, bundle: nil) // Call super.init
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private lazy var pricesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -67,6 +94,23 @@ class FlightsViewController: UIViewController {
         return label
     }()
     
+    lazy var notFoundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray6
+        
+        return view
+    }()
+    
+    lazy var notFoundLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Flights not found :("
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.textAlignment = .center
+        label.textColor = .systemGray
+        
+        return label
+    }()
+    
     lazy var bottomView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemGray6
@@ -76,14 +120,39 @@ class FlightsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupUI()
+        
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let currentError = data?.error?.code {
+            if currentError == "SEARCH_SEARCHFLIGHTS_NO_FLIGHTS_FOUND" {
+                notFound(isNotFound: true)
+            }
+        } else {
+            notFound(isNotFound: false)
+        }
+    }
+    
+    func scrollToSelectedItem() {
+        for ind in priceData!.indices {
+            if priceData![ind]!.offsetDays == 0 {
+                selectedItem = IndexPath(item: ind, section: 0)
+            }
+        }
+        
+        if let selectedItem = selectedItem {
+            self.pricesCollectionView.scrollToItem(at: selectedItem, at: .centeredHorizontally, animated: false)
+            scrolledToSelectedItem = true
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        scrolledToSelectedItem = false
         if self.isMovingFromParent {
             if let navigationController = navigationController,
                let mainVC = navigationController.viewControllers.first(where: { $0 is ViewController }) {
@@ -91,6 +160,7 @@ class FlightsViewController: UIViewController {
             }
         }
     }
+    
     
     func setupUI() {
         view.backgroundColor = companyColor
@@ -115,9 +185,15 @@ class FlightsViewController: UIViewController {
             make.bottom.equalToSuperview()
         }
         
-        [pricesCollectionView, flightTableView, bottomView].forEach {
+        notFoundView.addSubview(notFoundLabel)
+        notFoundLabel.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+        }
+        
+        [pricesCollectionView, flightTableView, notFoundView, bottomView].forEach {
             view.addSubview($0)
         }
+        
         
         pricesCollectionView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
@@ -131,9 +207,27 @@ class FlightsViewController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         
+        notFoundView.snp.makeConstraints { make in
+            make.top.equalTo(pricesCollectionView.snp.bottom).offset(0)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        notFound(isNotFound: false)
+        
         bottomView.snp.makeConstraints { make in
-            make.top.equalTo(flightTableView.snp.bottom)
+            make.top.equalTo(notFoundView.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
+        }
+    }
+    
+    func notFound(isNotFound: Bool) {
+        if isNotFound {
+            notFoundView.isHidden = false
+            flightTableView.isHidden = true
+        } else {
+            notFoundView.isHidden = true
+            flightTableView.isHidden = false
         }
     }
     
@@ -178,12 +272,12 @@ class FlightsViewController: UIViewController {
 
 extension FlightsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (flights?.count) ?? 0
+        return (data!.flightOffers?.count) ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = flightTableView.dequeueReusableCell(withIdentifier: "flight", for: indexPath) as! FlightTableViewCell
-        let flight = flights![indexPath.row]
+        let flight = data!.flightOffers![indexPath.row]
         cell.conf(flight: flight!)
         if returnIsActive {
             cell.confReturn(flight: flight!)
@@ -192,7 +286,7 @@ extension FlightsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let currentFlight = flights![indexPath.row]!
+        let currentFlight = data!.flightOffers![indexPath.row]!
         openFlightDetail(flight: currentFlight)
     }
     
@@ -205,8 +299,19 @@ extension FlightsViewController: UICollectionViewDataSource, UICollectionViewDel
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "price", for: indexPath) as! PriceCollectionViewCell
-        
         cell.conf(data: priceData![indexPath.row]!)  // Custom method to configure cell
+        
+        if !scrolledToSelectedItem {
+            scrollToSelectedItem()
+        }
+        if priceData![indexPath.row]!.offsetDays == 0 {
+            selectedItem = indexPath
+            cell.changeBackgroundColor(isSelected: true)
+        }
+        if priceData![indexPath.row]!.isCheapest {
+            cell.cheapestPrice()
+        }
+        
         return cell
     }
 
@@ -214,5 +319,25 @@ extension FlightsViewController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 90, height: 55)  // Size of each item
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        selectTimer?.invalidate()
+        if let selectedItem = selectedItem {
+            if let oldCell = collectionView.cellForItem(at: selectedItem) as? PriceCollectionViewCell {
+                oldCell.changeBackgroundColor(isSelected: false)
+            }
+        }
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? PriceCollectionViewCell {
+            cell.changeBackgroundColor(isSelected: true)
+            selectedItem = indexPath
+            selectTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
+                let loadingVC = LoadingViewController(from: self.from, to: self.to, departureDate: self.priceData![indexPath.row]!.departureDate, returnDate: self.returnDate, depatureCity: self.depatureCity, arrivalCity: self.arrivalCity)
+                
+                self.navigationController?.pushViewController(loadingVC, animated: true)
+            }
+        }
+        
     }
 }

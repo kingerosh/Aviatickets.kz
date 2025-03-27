@@ -46,8 +46,8 @@ class NetworkManager {
                 case .success(let data):
                     // 🔍 Проверка JSON перед парсингом
                     //jsonString
-                    if let _ = String(data: data, encoding: .utf8) {
-                        print("📜 RAW JSON Response:\n")
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("📜 RAW JSON Response:\n", jsonString)
                         //print("📜 RAW JSON Response:\n", jsonString)
                     }
                     
@@ -88,8 +88,8 @@ class NetworkManager {
                 case .success(let data):
                     // 🔍 Проверка JSON перед парсингом
                     //jsonString
-                    if let _ = String(data: data, encoding: .utf8) {
-                        print("📜 RAW JSON Response:\n")
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("📜 RAW JSON Response:\n", jsonString)
                         //print("📜 RAW JSON Response:\n", jsonString)
                     }
                     

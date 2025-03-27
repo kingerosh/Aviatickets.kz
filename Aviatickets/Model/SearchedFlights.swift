@@ -13,24 +13,30 @@ struct SearchedFlights: Codable {
     let data: DataClass
 }
 
+struct APIError: Codable {
+    let code: String
+    let requestId: String
+}
+
 // MARK: - DataClass
 struct DataClass: Codable {
     let aggregation: Aggregation?
-    let flightOffers: [FlightOffer?]
-    let flightDeals: [FlightDeal]
-    let atolProtectedStatus, searchID: String
-    let banners: [JSONAny]
-    let displayOptions: DisplayOptions
-    let isOffersCabinClassExtended: Bool
-    let cabinClassExtension: CabinClassExtension
-    let searchCriteria: SearchCriteria
-    let baggagePolicies: [BaggagePolicy]
-    let priceAlertStatus: PriceAlertStatus
+    let flightOffers: [FlightOffer?]?
+    let flightDeals: [FlightDeal]?
+    let atolProtectedStatus, searchID: String?
+    let banners: [JSONAny]?
+    let displayOptions: DisplayOptions?
+    let isOffersCabinClassExtended: Bool?
+    let cabinClassExtension: CabinClassExtension?
+    let searchCriteria: SearchCriteria?
+    let baggagePolicies: [BaggagePolicy]?
+    let priceAlertStatus: PriceAlertStatus?
+    let error: APIError?
 
     enum CodingKeys: String, CodingKey {
         case aggregation, flightOffers, flightDeals, atolProtectedStatus
         case searchID = "searchId"
-        case banners, displayOptions, isOffersCabinClassExtended, cabinClassExtension, searchCriteria, baggagePolicies, priceAlertStatus
+        case banners, displayOptions, isOffersCabinClassExtended, cabinClassExtension, searchCriteria, baggagePolicies, priceAlertStatus, error
     }
 }
 
@@ -238,7 +244,7 @@ struct LuggageAllowance: Codable {
     let ruleType: String?
     let maxPiece: Int
     let maxWeightPerPiece: Double?
-    let massUnit: MassUnit?
+    let massUnit: String?
     let sizeRestrictions: SizeRestrictions?
 }
 
@@ -246,10 +252,6 @@ enum LuggageType: String, Codable {
     case checkedIn = "CHECKED_IN"
     case hand = "HAND"
     case personalItem = "PERSONAL_ITEM"
-}
-
-enum MassUnit: String, Codable {
-    case lb = "LB"
 }
 
 
@@ -362,7 +364,7 @@ struct IncludedProductsSegment: Codable {
     let luggageType: LuggageType
     let maxPiece: Int
     let maxWeightPerPiece: Double?
-    let massUnit: MassUnit?
+    let massUnit: String?
     let sizeRestrictions: SizeRestrictions?
     let piecePerPax: Int
     let ruleType: String?

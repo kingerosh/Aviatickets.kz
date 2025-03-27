@@ -74,49 +74,52 @@ class LoadingViewController: UIViewController {
         let departureDate = self.departureDate
         
         if returnDate == "" {
-            let flightsViewController = FlightsViewController()
+            let flightsViewController = FlightsViewController(from: from, to: to, departureDate: departureDate, returnDate: returnDate, depatureCity: self.depatureCity, arrivalCity: self.arrivalCity)
             
             NetworkManager.shared.pricesFlights(from: from, to: to, departureDate: departureDate) { result in
                 do {
                     
                     let data = try result.get() // Extract data safely
                     flightsViewController.priceData = data.data
-    
-                } catch {
-                    print("❌ Error fetching flights: \(error.localizedDescription)")
-                }
-            }
-            
-            NetworkManager.shared.searchFlights(from: from, to: to, departureDate: departureDate) { result in
-                do {
-                    let flightData = try result.get() // Extract data safely
-                    flightsViewController.flights = flightData.data.flightOffers
                     
-                    flightsViewController.titleLabel.text = self.depatureCity + " -- " + self.arrivalCity
-                    flightsViewController.underTitleLabel.text = formatDayWithWeekday(from: departureDate)
-                    
-                    flightsViewController.returnIsActive = false
-                    flightsViewController.flightTableView.rowHeight = 130
-                    
-                    if let mainVC = self.navigationController?.viewControllers.first(where: { $0 is ViewController }) {
-                        self.navigationController?.setViewControllers([mainVC, flightsViewController], animated: true)
+                    NetworkManager.shared.searchFlights(from: from, to: to, departureDate: departureDate) { result in
+                        do {
+                            let flightData = try result.get() // Extract data safely
+                        
+                            flightsViewController.data = flightData.data
+                            
+                            flightsViewController.titleLabel.text = self.depatureCity + " -- " + self.arrivalCity
+                            flightsViewController.underTitleLabel.text = formatDayWithWeekday(from: departureDate)
+                            
+                            flightsViewController.returnIsActive = false
+                            flightsViewController.flightTableView.rowHeight = 130
+                            
+                            if let mainVC = self.navigationController?.viewControllers.first(where: { $0 is ViewController }) {
+                                self.navigationController?.setViewControllers([mainVC, flightsViewController], animated: true)
+                            }
+                            //self.navigationController?.pushViewController(flightsViewController, animated: true)
+                        } catch {
+                            showErrorAlert(message: "Check API key or internet connection", in: self)
+                            print("❌ Error fetching flights: \(error.localizedDescription)")
+                        }
                     }
-                    //self.navigationController?.pushViewController(flightsViewController, animated: true)
+    
                 } catch {
                     showErrorAlert(message: "Check API key or internet connection", in: self)
                     print("❌ Error fetching flights: \(error.localizedDescription)")
                 }
             }
+            
         } else {
         
             NetworkManager.shared.searchMultiFlights(from: from, to: to, departureDate: departureDate, returnDate: returnDate) { result in
                 do {
-                    let flightsViewController = FlightsViewController()
+                    let flightsViewController = FlightsViewController(from: from, to: to, departureDate: departureDate, returnDate: returnDate, depatureCity: self.depatureCity, arrivalCity: self.arrivalCity)
                     flightsViewController.removePriceCollectionView()
                     
                     let flightData = try result.get() // Extract data safely
                     
-                    flightsViewController.flights = flightData.data.flightOffers
+                    flightsViewController.data = flightData.data
                     
                     flightsViewController.titleLabel.text = self.depatureCity + " -- " + self.arrivalCity
                     flightsViewController.underTitleLabel.text = formatDayWithWeekday(from: departureDate)! + " - " + formatDayWithWeekday(from: returnDate)!

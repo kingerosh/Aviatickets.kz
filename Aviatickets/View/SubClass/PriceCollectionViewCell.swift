@@ -78,4 +78,20 @@ class PriceCollectionViewCell: UICollectionViewCell {
         dateLabel.text = formatDayWithWeekday(from: data.departureDate)
         priceLabel.text = "\(formatPrice(data.price.units)) ₸"
     }
+    
+    func changeBackgroundColor(isSelected: Bool) {
+        if isSelected {
+            paddedContainer.backgroundColor = .systemBlue
+            dateLabel.textColor = .white
+            priceLabel.textColor = .white
+        } else {
+            paddedContainer.backgroundColor = .systemGray5
+            dateLabel.textColor = .systemGray
+            priceLabel.textColor = UIColor.label
+        }
+    }
+    
+    func cheapestPrice() {
+        priceLabel.textColor = companyColor
+    }
 }

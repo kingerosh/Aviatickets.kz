@@ -125,6 +125,7 @@ extension CitySearchViewController: UISearchBarDelegate {
         activityIndicator.startAnimating()
         notFoundLabel.alpha = 0
         tableView.alpha = 0
+        
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
             self.performSearch(query: searchText)
         }

@@ -6,24 +6,40 @@
 //
 
 import UIKit
+import SnapKit
 
 class DraftViewController: UIViewController {
-
+    
+    private var rect: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 16
+        view.backgroundColor = .red
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private var circle = UIView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        circle.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .systemBackground
+        view.addSubview(rect)
+        
+        rect.snp.makeConstraints { make in
+            make.centerX.centerY.equalToSuperview()
+            make.width.height.equalTo(100)
+        }
+        
+        view.addSubview(circle)
+        circle.backgroundColor = .blue
+        circle.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(rect.snp.bottom).offset(10)
+            make.width.height.equalTo(100)
+        }
+        circle.layer.cornerRadius = 100 / 2
+        
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }

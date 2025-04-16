@@ -1,5 +1,5 @@
 Wait for gif-s. 
-
-![no_return](Aviatickets/Assets.xcassets/recordings/no_return.gif)
+<img src="Aviatickets/Assets.xcassets/recordings/no_return.gif" width="300">
+![no_return](src)
 ![return](Aviatickets/Assets.xcassets/recordings/return.gif)
 

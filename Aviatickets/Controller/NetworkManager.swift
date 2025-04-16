@@ -13,7 +13,7 @@ class NetworkManager {
     
     private let headers: HTTPHeaders = [
         "x-rapidapi-host": "booking-com15.p.rapidapi.com",
-        "x-rapidapi-key": "33472ff036mshc44c9f8a422e518p133860jsn95cea37ede7c"
+        "x-rapidapi-key": "921414a5e7msh7f5ecf1b16d51bap103b07jsn0ec04b2984ae"
         // 28b17fa475msh3a0d241e8b61d7cp1e08b6jsnc770818855b5
         // 921414a5e7msh7f5ecf1b16d51bap103b07jsn0ec04b2984ae
         // d4a594aff1mshb07dc0badf6df9ap13333ajsn1fe6e5846dae

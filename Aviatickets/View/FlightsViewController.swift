@@ -248,12 +248,17 @@ class FlightsViewController: UIViewController {
         
         
         if let sheet = detailVC.sheetPresentationController {
-            sheet.detents = [.medium()] // Enables draggable sizes
+            let customDetent = UISheetPresentationController.Detent.custom(identifier: .init("customHeight")) { context in
+                return 500 // Custom height in points
+            }
+            sheet.detents = [customDetent, .large()] // Enables draggable sizes
             sheet.prefersGrabberVisible = true // Shows the mini-line
             
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-        }
+            //sheet.prefersEdgeAttachedInCompactHeight = true
+            //sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.largestUndimmedDetentIdentifier = .large
+            sheet.delegate = detailVC
+        } 
         
         present(detailVC, animated: true)
     }
@@ -294,6 +299,7 @@ extension FlightsViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension FlightsViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
         return priceData?.count ?? 0 // Number of items
     }
 

@@ -42,16 +42,60 @@ class FlightDetailViewController: UIViewController {
         return table
     }()
     
+    private lazy var priceLabel:UILabel = {
+       let title = UILabel()
+        title.textAlignment = .left
+        title.text = "69 000 T"
+        title.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        title.translatesAutoresizingMaskIntoConstraints = false
+        return title
+    }()
+    
+    let continueButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Continue", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = companyColor
+        button.layer.cornerRadius = 10
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        button.translatesAutoresizingMaskIntoConstraints = false
+
+        return button
+    }()
+    
+    private let priceContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemBackground
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 10
+        
+        view.layer.shadowColor = UIColor.black.cgColor  // Shadow color
+        view.layer.shadowOpacity = 0.2  // Opacity (0 = no shadow, 1 = solid)
+        view.layer.shadowOffset = CGSize(width: 1, height: -1)  // Offset (X, Y)
+        view.layer.shadowRadius = 2  // Blur radius
+        view.layer.masksToBounds = false  // Ensure shadow is visible outside the view bounds
+        return view
+    }()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        
+        priceLabel.text = formatPrice(flight?.priceBreakdown?.total.units ?? 0) + " ₸"
+        continueButton.isEnabled = false
+        continueButton.backgroundColor = .gray
         // Do any additional setup after loading the view.
     }
     
     func setupUI() {
         view.backgroundColor = .systemBackground
-        [mainLabel, mainDividerView, flightDetailTableView].forEach {
+        [mainLabel, mainDividerView, flightDetailTableView, priceContainer].forEach {
             view.addSubview($0)
+        }
+        
+        [priceLabel, continueButton].forEach {
+            priceContainer.addSubview($0)
         }
         
         mainLabel.snp.makeConstraints { make in
@@ -68,9 +112,29 @@ class FlightDetailViewController: UIViewController {
         
         flightDetailTableView.snp.makeConstraints { make in
             make.top.equalTo(mainDividerView.snp.bottom).offset(10)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
         }
         
+        priceContainer.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(flightDetailTableView.snp.bottom)
+            make.height.equalTo(100)
+        }
+        
+        priceLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(15)
+            make.top.equalToSuperview().offset(20)
+            
+        }
+        
+        continueButton.snp.makeConstraints { make in
+            make.leading.equalTo(priceContainer.snp.centerX).offset(-40)
+            make.trailing.equalToSuperview().offset(-15)
+            make.top.equalToSuperview().offset(20)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        view.bringSubviewToFront(priceContainer)
     }
 
 }
@@ -94,8 +158,8 @@ extension FlightDetailViewController: UITableViewDelegate, UITableViewDataSource
         var segment = segments.first!
         var isReturn = false
         var legNumber = indexPath.row
-        print("total:\(firstLegs)")
-        print("indexpath:", indexPath.row)
+        //print("total:\(firstLegs)")
+        //print("indexpath:", indexPath.row)
         if indexPath.row < firstLegs {
             segment = segments.first!
             isReturn = false
@@ -158,4 +222,12 @@ extension FlightDetailViewController: UITableViewDelegate, UITableViewDataSource
         return newHeight // Ensure a minimum height
     }
     
+}
+
+extension FlightDetailViewController: UISheetPresentationControllerDelegate{
+    func sheetPresentationControllerDidChangeSelectedDetentIdentifier(_ sheetPresentationController: UISheetPresentationController) {
+            if sheetPresentationController.selectedDetentIdentifier == .large {
+                sheetPresentationController.detents = [.large()] // Remove custom detent
+            }
+    }
 }

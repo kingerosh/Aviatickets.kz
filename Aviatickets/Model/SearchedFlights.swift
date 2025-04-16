@@ -198,7 +198,7 @@ struct FlightOffer: Codable {
     let priceBreakdown: PriceBreakdown?
     let travellerPrices: [TravellerPrice]
     let priceDisplayRequirements: [JSONAny]
-    let pointOfSale: PointOfSale?
+    let pointOfSale: String?
     let tripType: String?
     let posMismatch: PosMismatch?
     let includedProductsBySegment: [[IncludedProductsBySegment]]
@@ -232,7 +232,7 @@ enum AirProductReference: String, Codable {
 
 // MARK: - Option
 struct Option: Codable {
-    let luggageAllowance: LuggageAllowance
+    let luggageAllowance: LuggageAllowance?
     let priceBreakdown: PriceBreakdown?
     let travellers: [String]
     let preSelected: Bool
@@ -259,11 +259,7 @@ enum LuggageType: String, Codable {
 // MARK: - SizeRestrictions
 struct SizeRestrictions: Codable {
     let maxLength, maxWidth, maxHeight: Double
-    let sizeUnit: SizeUnit
-}
-
-enum SizeUnit: String, Codable {
-    case inch = "INCH"
+    let sizeUnit: String?
 }
 
 // MARK: - AncillariesFlexibleTicket
@@ -273,7 +269,7 @@ struct AncillariesFlexibleTicket: Codable {
     let priceBreakdown: PriceBreakdown?
     let preSelected: Bool
     let recommendation: Recommendation
-    let supplierInfo: SupplierInfo
+    let supplierInfo: SupplierInfo?
 }
 
 // MARK: - Recommendation
@@ -288,8 +284,8 @@ enum Confidence: String, Codable {
 
 // MARK: - SupplierInfo
 struct SupplierInfo: Codable {
-    let name: SupplierInfoName
-    let termsURL, privacyPolicyURL: String
+    let name: String?
+    let termsURL, privacyPolicyURL: String?
 
     enum CodingKeys: String, CodingKey {
         case name
@@ -298,9 +294,7 @@ struct SupplierInfo: Codable {
     }
 }
 
-enum SupplierInfoName: String, Codable {
-    case gotogateInc = "Gotogate, Inc."
-}
+
 
 // MARK: - BrandedFareInfo
 struct BrandedFareInfo: Codable {
@@ -399,18 +393,16 @@ struct OfferExtrasFlexibleTicket: Codable {
     let travellers: [String]
     let recommendation: Recommendation
     let priceBreakdown: PriceBreakdown?
-    let supplierInfo: SupplierInfo
+    let supplierInfo: SupplierInfo?
 }
 
-enum PointOfSale: String, Codable {
-    case us = "us"
-}
+
 
 // MARK: - PosMismatch
 struct PosMismatch: Codable {
-    let detectedPointOfSale: PointOfSale
+    let detectedPointOfSale: String?
     let isPOSMismatch: Bool
-    let offerSalesCountry: PointOfSale
+    let offerSalesCountry: String?
 }
 
 // MARK: - FlightOfferSegment

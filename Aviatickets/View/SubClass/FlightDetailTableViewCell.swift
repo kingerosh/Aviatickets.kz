@@ -518,10 +518,10 @@ class FlightDetailTableViewCell: UITableViewCell {
         super.layoutSubviews()
         contentView.layoutIfNeeded()
         
-        print("=========")
+        //print("=========")
         var newHeight = transferImageView.frame.height
         newHeight += (5 + 5)
-        print(newHeight)
+        //print(newHeight)
         
     }
     
